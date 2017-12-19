@@ -1,0 +1,181 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/bin/node',
+1 verbose cli   '/usr/local/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   '-g',
+1 verbose cli   'create-react-app' ]
+2 info using npm@2.14.20
+3 info using node@v4.4.1
+4 verbose install initial load of /usr/local/lib/package.json
+5 verbose readDependencies loading dependencies from /usr/local/lib/package.json
+6 silly cache add args [ 'create-react-app', null ]
+7 verbose cache add spec create-react-app
+8 silly cache add parsed spec Result {
+8 silly cache add   raw: 'create-react-app',
+8 silly cache add   scope: null,
+8 silly cache add   name: 'create-react-app',
+8 silly cache add   rawSpec: '',
+8 silly cache add   spec: 'latest',
+8 silly cache add   type: 'tag' }
+9 silly addNamed create-react-app@latest
+10 verbose addNamed "latest" is being treated as a dist-tag for create-react-app
+11 info addNameTag [ 'create-react-app', 'latest' ]
+12 silly mapToRegistry name create-react-app
+13 silly mapToRegistry using default registry
+14 silly mapToRegistry registry https://registry.npmjs.org/
+15 silly mapToRegistry uri https://registry.npmjs.org/create-react-app
+16 verbose addNameTag registry:https://registry.npmjs.org/create-react-app not in flight; fetching
+17 verbose request uri https://registry.npmjs.org/create-react-app
+18 verbose request no auth needed
+19 info attempt registry request try #1 at 22:09:11
+20 verbose request id e77a4d659b27b807
+21 http request GET https://registry.npmjs.org/create-react-app
+22 http 200 https://registry.npmjs.org/create-react-app
+23 verbose headers { 'content-type': 'application/json; charset=UTF-8',
+23 verbose headers   server: 'UploadServer',
+23 verbose headers   'cache-control': 'max-age=300',
+23 verbose headers   'last-modified': 'Fri, 17 Nov 2017 16:35:53 GMT',
+23 verbose headers   etag: '"5a0f0fe9-de82"',
+23 verbose headers   'content-length': '56962',
+23 verbose headers   'accept-ranges': 'bytes',
+23 verbose headers   date: 'Wed, 06 Dec 2017 13:09:11 GMT',
+23 verbose headers   via: '1.1 varnish',
+23 verbose headers   age: '2021',
+23 verbose headers   connection: 'keep-alive',
+23 verbose headers   'x-served-by': 'cache-itm18831-ITM',
+23 verbose headers   'x-cache': 'HIT',
+23 verbose headers   'x-cache-hits': '1',
+23 verbose headers   'x-timer': 'S1512565752.811841,VS0,VE1',
+23 verbose headers   vary: 'Accept-Encoding, Accept' }
+24 silly get cb [ 200,
+24 silly get   { 'content-type': 'application/json; charset=UTF-8',
+24 silly get     server: 'UploadServer',
+24 silly get     'cache-control': 'max-age=300',
+24 silly get     'last-modified': 'Fri, 17 Nov 2017 16:35:53 GMT',
+24 silly get     etag: '"5a0f0fe9-de82"',
+24 silly get     'content-length': '56962',
+24 silly get     'accept-ranges': 'bytes',
+24 silly get     date: 'Wed, 06 Dec 2017 13:09:11 GMT',
+24 silly get     via: '1.1 varnish',
+24 silly get     age: '2021',
+24 silly get     connection: 'keep-alive',
+24 silly get     'x-served-by': 'cache-itm18831-ITM',
+24 silly get     'x-cache': 'HIT',
+24 silly get     'x-cache-hits': '1',
+24 silly get     'x-timer': 'S1512565752.811841,VS0,VE1',
+24 silly get     vary: 'Accept-Encoding, Accept' } ]
+25 verbose get saving create-react-app to /Users/teramotosatoshishi/.npm/registry.npmjs.org/create-react-app/.cache.json
+26 verbose correctMkdir /Users/teramotosatoshishi/.npm correctMkdir not in flight; initializing
+27 silly addNameTag next cb for create-react-app with tag latest
+28 silly addNamed create-react-app@1.4.3
+29 verbose addNamed "1.4.3" is a plain semver version for create-react-app
+30 silly mapToRegistry name create-react-app
+31 silly mapToRegistry using default registry
+32 silly mapToRegistry registry https://registry.npmjs.org/
+33 silly mapToRegistry uri https://registry.npmjs.org/create-react-app
+34 verbose addRemoteTarball https://registry.npmjs.org/create-react-app/-/create-react-app-1.4.3.tgz not in flight; adding
+35 verbose addRemoteTarball [ 'https://registry.npmjs.org/create-react-app/-/create-react-app-1.4.3.tgz',
+35 verbose addRemoteTarball   'a459905544d3c4dde7e747328ae8b0e6d483fc8d' ]
+36 info retry fetch attempt 1 at 22:09:11
+37 info attempt registry request try #1 at 22:09:11
+38 http fetch GET https://registry.npmjs.org/create-react-app/-/create-react-app-1.4.3.tgz
+39 http fetch 200 https://registry.npmjs.org/create-react-app/-/create-react-app-1.4.3.tgz
+40 silly fetchAndShaCheck shasum a459905544d3c4dde7e747328ae8b0e6d483fc8d
+41 verbose addTmpTarball /var/folders/b4/2qx756p93js_vxn52n9942vm0000gn/T/npm-767-c00831f7/registry.npmjs.org/create-react-app/-/create-react-app-1.4.3.tgz not in flight; adding
+42 verbose addTmpTarball already have metadata; skipping unpack for create-react-app@1.4.3
+43 verbose correctMkdir /Users/teramotosatoshishi/.npm correctMkdir not in flight; initializing
+44 silly cache afterAdd create-react-app@1.4.3
+45 verbose afterAdd /Users/teramotosatoshishi/.npm/create-react-app/1.4.3/package/package.json not in flight; writing
+46 verbose correctMkdir /Users/teramotosatoshishi/.npm correctMkdir not in flight; initializing
+47 verbose afterAdd /Users/teramotosatoshishi/.npm/create-react-app/1.4.3/package/package.json written
+48 silly install resolved [ { name: 'create-react-app',
+48 silly install resolved     version: '1.4.3',
+48 silly install resolved     keywords: [ 'react' ],
+48 silly install resolved     description: 'Create React apps with no build configuration.',
+48 silly install resolved     repository:
+48 silly install resolved      { type: 'git',
+48 silly install resolved        url: 'git+https://github.com/facebookincubator/create-react-app.git' },
+48 silly install resolved     license: 'MIT',
+48 silly install resolved     engines: { node: '>=4' },
+48 silly install resolved     bugs: { url: 'https://github.com/facebookincubator/create-react-app/issues' },
+48 silly install resolved     files: [ 'index.js', 'createReactApp.js' ],
+48 silly install resolved     bin: { 'create-react-app': './index.js' },
+48 silly install resolved     dependencies:
+48 silly install resolved      { chalk: '^1.1.1',
+48 silly install resolved        commander: '^2.9.0',
+48 silly install resolved        'cross-spawn': '^4.0.0',
+48 silly install resolved        'fs-extra': '^1.0.0',
+48 silly install resolved        hyperquest: '^2.1.2',
+48 silly install resolved        semver: '^5.0.3',
+48 silly install resolved        'tar-pack': '^3.4.0',
+48 silly install resolved        tmp: '0.0.31',
+48 silly install resolved        'validate-npm-package-name': '^3.0.0' },
+48 silly install resolved     homepage: 'https://github.com/facebookincubator/create-react-app#readme',
+48 silly install resolved     _id: 'create-react-app@1.4.3',
+48 silly install resolved     scripts: {},
+48 silly install resolved     _shasum: 'a459905544d3c4dde7e747328ae8b0e6d483fc8d',
+48 silly install resolved     _from: 'create-react-app@latest',
+48 silly install resolved     _npmVersion: '3.10.8',
+48 silly install resolved     _nodeVersion: '8.2.1',
+48 silly install resolved     _npmUser: { name: 'gaearon', email: 'dan.abramov@gmail.com' },
+48 silly install resolved     dist:
+48 silly install resolved      { shasum: 'a459905544d3c4dde7e747328ae8b0e6d483fc8d',
+48 silly install resolved        tarball: 'https://registry.npmjs.org/create-react-app/-/create-react-app-1.4.3.tgz' },
+48 silly install resolved     maintainers: [ [Object], [Object], [Object], [Object], [Object] ],
+48 silly install resolved     _npmOperationalInternal:
+48 silly install resolved      { host: 's3://npm-registry-packages',
+48 silly install resolved        tmp: 'tmp/create-react-app-1.4.3.tgz_1509446484176_0.20816483348608017' },
+48 silly install resolved     directories: {},
+48 silly install resolved     _resolved: 'https://registry.npmjs.org/create-react-app/-/create-react-app-1.4.3.tgz' } ]
+49 info install create-react-app@1.4.3 into /usr/local/lib
+50 info installOne create-react-app@1.4.3
+51 verbose installOne of create-react-app to /usr/local/lib not in flight; installing
+52 verbose correctMkdir /Users/teramotosatoshishi/.npm/_locks correctMkdir not in flight; initializing
+53 verbose lock using /Users/teramotosatoshishi/.npm/_locks/create-react-app-0e023debf1332c64.lock for /usr/local/lib/node_modules/create-react-app
+54 silly install write writing create-react-app 1.4.3 to /usr/local/lib/node_modules/create-react-app
+55 verbose unbuild lib/node_modules/create-react-app
+56 silly gentlyRm /usr/local/lib/node_modules/create-react-app is being purged from base /usr/local
+57 verbose gentlyRm don't care about contents; nuking /usr/local/lib/node_modules/create-react-app
+58 verbose tar unpack /Users/teramotosatoshishi/.npm/create-react-app/1.4.3/package.tgz
+59 verbose tar unpacking to /usr/local/lib/node_modules/create-react-app
+60 silly gentlyRm /usr/local/lib/node_modules/create-react-app is being purged
+61 verbose gentlyRm don't care about contents; nuking /usr/local/lib/node_modules/create-react-app
+62 silly gunzTarPerm modes [ '755', '644' ]
+63 error tar.unpack untar error /Users/teramotosatoshishi/.npm/create-react-app/1.4.3/package.tgz
+64 verbose unlock done using /Users/teramotosatoshishi/.npm/_locks/create-react-app-0e023debf1332c64.lock for /usr/local/lib/node_modules/create-react-app
+65 verbose fstream_path /usr/local/lib/node_modules/create-react-app
+66 verbose fstream_type Directory
+67 verbose fstream_class DirWriter
+68 verbose stack Error: EACCES: permission denied, mkdir '/usr/local/lib/node_modules/create-react-app'
+68 verbose stack     at Error (native)
+69 verbose fstream_stack /usr/local/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:35:25
+69 verbose fstream_stack /usr/local/lib/node_modules/npm/node_modules/mkdirp/index.js:47:53
+69 verbose fstream_stack FSReqWrap.oncomplete (fs.js:82:15)
+70 verbose cwd /Users/teramotosatoshishi/Sites/webrtc
+71 error Darwin 15.6.0
+72 error argv "/usr/local/bin/node" "/usr/local/bin/npm" "install" "-g" "create-react-app"
+73 error node v4.4.1
+74 error npm  v2.14.20
+75 error path /usr/local/lib/node_modules/create-react-app
+76 error code EACCES
+77 error errno -13
+78 error syscall mkdir
+79 error Error: EACCES: permission denied, mkdir '/usr/local/lib/node_modules/create-react-app'
+79 error     at Error (native)
+79 error  { [Error: EACCES: permission denied, mkdir '/usr/local/lib/node_modules/create-react-app']
+79 error   errno: -13,
+79 error   code: 'EACCES',
+79 error   syscall: 'mkdir',
+79 error   path: '/usr/local/lib/node_modules/create-react-app',
+79 error   fstream_type: 'Directory',
+79 error   fstream_path: '/usr/local/lib/node_modules/create-react-app',
+79 error   fstream_class: 'DirWriter',
+79 error   fstream_stack:
+79 error    [ '/usr/local/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:35:25',
+79 error      '/usr/local/lib/node_modules/npm/node_modules/mkdirp/index.js:47:53',
+79 error      'FSReqWrap.oncomplete (fs.js:82:15)' ] }
+80 error Please try running this command again as root/Administrator.
+81 verbose exit [ -13, true ]
+82 verbose unbuild lib/node_modules/create-react-app
+83 silly gentlyRm /usr/local/lib/node_modules/create-react-app is being purged from base /usr/local
+84 verbose gentlyRm don't care about contents; nuking /usr/local/lib/node_modules/create-react-app
