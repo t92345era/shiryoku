@@ -30,7 +30,14 @@ func UploadAudio(w http.ResponseWriter, r *http.Request) {
 
 	defer file.Close()
 	//	fmt.Fprintf(w, "%v", handler.Header)
-	filePath := "/Users/teramotosatoshishi/go/src/shiryoku/test/" + handler.Filename
+	var honban = os.Getenv("SHIRYOKU_HONBAN")
+	var filePath string
+	if honban == "YES" {
+		filePath = "/home/unicef/go/src/shiryoku/test/" + handler.Filename
+	} else {
+		filePath = "/Users/teramotosatoshishi/go/src/shiryoku/test/" + handler.Filename
+	}
+
 	f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		fmt.Println(err)
