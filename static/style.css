@@ -75,3 +75,11 @@ img.mark.lv7 { width:  20px; }
 img.mark.lv8 { width:  10px; }
 img.mark.lv9 { width:   5px; }
 img.mark.lv10 { width:  3px; }
+
+
+.rec-state {
+  height: 3em;
+  background: #ccc;
+  text-align: center;
+  margin: 0;
+}

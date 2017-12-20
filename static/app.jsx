@@ -90,7 +90,9 @@ class GameWin extends React.Component {
       renzokuCnt: 0,
       ngRenCnt: 0,
       lvl: 1,
-      downloadLink: ""
+      downloadLink: "",
+      isRec: false,
+      lastScript: ""
     };
     this.rec = null;
     this.handleStart = this.handleStart.bind(this);
@@ -99,6 +101,8 @@ class GameWin extends React.Component {
     this.handleRetry = this.handleRetry.bind(this);
     this.handleShutsuDai = this.handleShutsuDai.bind(this);
     this.handleRecDataAvailable = this.handleRecDataAvailable.bind(this);
+    this.talkAns = this.talkAns.bind(this);
+    
   }
 
   //マウント
@@ -123,6 +127,10 @@ class GameWin extends React.Component {
    */
   handleShutsuDai(direction) {
     this.rec.timerRec(5000);
+    this.setState({
+      isRec: true,
+      lastScript: ""
+    });
   }
 
   /**
@@ -163,6 +171,7 @@ class GameWin extends React.Component {
    * @param {string} dataUrl 
    */
   handleRecDataAvailable(blob) {
+
     var url = URL.createObjectURL(blob);
     this.setState({
       downloadLink: url
@@ -179,9 +188,11 @@ class GameWin extends React.Component {
         data: formData,
         processData: false,
         contentType: false
-    }).then(function(data) {
-      alert(data);
-    }, function(err) {
+    }).then((data) => {
+      this.setState({ isRec: false });
+      this.talkAns(data);
+    }, (err) => {
+      this.setState({ isRec: false });
       alert("file upload errror!!" + err);
     });
   }
@@ -206,6 +217,9 @@ class GameWin extends React.Component {
     } else if (scripts[index] == "した") {
       direction = "down";
     }
+
+    //最後に認識したことばをセット
+    this.setState({ lastScript: scripts[index] });
 
     if (direction != "") {
       this.refs.mondai.ans(direction);
@@ -252,9 +266,17 @@ class GameWin extends React.Component {
   render() { return (
   <div className="gameWin">
   {this.isShowMondai() && 
-    <Mondai ref="mondai" 
-            sts={this.props.sts} 
-            lvl={this.state.lvl}/>}
+    <div>
+      <div className="rec-state">
+      {this.state.isRec &&
+        <span>認識中</span>}
+      {(!this.state.isRec && this.state.lastScript != "") &&
+        <span>認識した言葉：{this.state.lastScript}</span>}
+      </div>
+      <Mondai ref="mondai" 
+              sts={this.props.sts} 
+              lvl={this.state.lvl}/>
+    </div>}
   {this.props.sts == STATE.GAME_RESULT &&
     <div>
       <h2>あなたのレベルは {this.state.lvl} です。</h2>  
