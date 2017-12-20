@@ -41,7 +41,7 @@ func CallSpeakApi(path string) []string {
 	resp, err := client.SyncRecognize(ctx, &speechpb.SyncRecognizeRequest{
 		Config: &speechpb.RecognitionConfig{
 			Encoding:     speechpb.RecognitionConfig_LINEAR16,
-			SampleRate:   44100,
+			SampleRate:   48000,
 			LanguageCode: "ja_JP",
 			SpeechContext: &speechpb.SpeechContext{
 				Phrases: []string{"うえ", "した", "みぎ", "ひだり"},
@@ -51,6 +51,10 @@ func CallSpeakApi(path string) []string {
 			AudioSource: &speechpb.RecognitionAudio_Content{Content: data},
 		},
 	})
+
+	if err != nil {
+		log.Fatalf("Failed to read file: %v", err)
+	}
 
 	var scripts []string
 
