@@ -206,12 +206,12 @@ class GameWin extends React.Component {
       recState: "NINSHIKI"
     });
 
-    setTimeout(() => {
-      this.setState({ recState: "STOP" });
-      this.talkAns(["ひだり"]);
-    }, 1500);
+    // setTimeout(() => {
+    //   this.setState({ recState: "STOP" });
+    //   this.talkAns(["ひだり"]);
+    // }, 1500);
 
-    return;
+    // return;
 
     //音声ファイル送信
     var formData = new FormData();
