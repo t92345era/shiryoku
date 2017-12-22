@@ -15,11 +15,27 @@
     <script src="/static/js/AudioRec.js"></script>
   </head>
   <body>
+
+    <canvas 
+      style="margin-left:30px; border:1px solid #888;"
+      height="100px" 
+      width="300px"></canvas>
+
     <div id="app"></div><!-- ←ここに埋め込まれる -->
 
     <!-- 以下、Reactのプログラム -->
     <!-- (jsxを使っているのでtext/jsxと書く) -->
     <script type="text/jsx" src="/static/study.jsx"></script>
     <script type="text/jsx" src="/static/app.jsx"></script>
+
+    <audio id="sound-shutsudai" preload="auto">
+      <source src="/static/audio/shutsudai.mp3" type="audio/mp3">
+    </audio>
+    <audio id="sound-seikai" preload="auto">
+      <source src="/static/audio/seikai.mp3" type="audio/mp3">
+    </audio>
+    <audio id="sound-huseikai" preload="auto">
+      <source src="/static/audio/huseikai.mp3" type="audio/mp3">
+    </audio>
   </body>
 </html>

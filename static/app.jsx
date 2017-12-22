@@ -1,5 +1,25 @@
 //import Test from './componets/Test';
 
+function sound_shutsudai() {
+  sound_play( 'sound-shutsudai' );
+}
+function sound_seikai() {
+  sound_play( 'sound-seikai' );
+}
+function sound_huseikai() {
+  sound_play( 'sound-huseikai' );
+}
+
+function sound_play(id) {
+	// 初回以外だったら音声ファイルを巻き戻す
+	if( typeof( document.getElementById( id ).currentTime ) != 'undefined' ) {
+    document.getElementById( id ).currentTime = 0;
+  }
+	
+	// [ID:sound-file]の音声ファイルを再生[play()]する
+	document.getElementById( id ).play() ;
+}
+
 class Util {
   static isFunction(target) {
     return typeof target === "function";
@@ -91,8 +111,8 @@ class GameWin extends React.Component {
       ngRenCnt: 0,
       lvl: 1,
       downloadLink: "",
-      isRec: false,
-      lastScript: ""
+      recState: "STOP",
+      lastScript: "ee"
     };
     this.rec = null;
     this.handleStart = this.handleStart.bind(this);
@@ -126,9 +146,10 @@ class GameWin extends React.Component {
    * @param {string} direction 
    */
   handleShutsuDai(direction) {
+    sound_shutsudai();
     this.rec.timerRec(5000);
     this.setState({
-      isRec: true,
+      recState: "REC",
       lastScript: ""
     });
   }
@@ -138,6 +159,13 @@ class GameWin extends React.Component {
    * @param {string} result 
    */
   handleAns(result) {
+
+    if (result == "OK") {
+      sound_seikai();
+    } else {
+      sound_huseikai();
+    }
+ 
 
     this.setState((prevState, props) => {
       let cnt = result == "OK" ? prevState.renzokuCnt + 1 : 0;
@@ -174,8 +202,16 @@ class GameWin extends React.Component {
 
     var url = URL.createObjectURL(blob);
     this.setState({
-      downloadLink: url
+      downloadLink: url,
+      recState: "NINSHIKI"
     });
+
+    setTimeout(() => {
+      this.setState({ recState: "STOP" });
+      this.talkAns(["ひだり"]);
+    }, 1500);
+
+    return;
 
     //音声ファイル送信
     var formData = new FormData();
@@ -189,10 +225,10 @@ class GameWin extends React.Component {
         processData: false,
         contentType: false
     }).then((data) => {
-      this.setState({ isRec: false });
+      this.setState({ recState: "STOP" });
       this.talkAns(data);
     }, (err) => {
-      this.setState({ isRec: false });
+      this.setState({ recState: "STOP" });
       alert("file upload errror!!" + err);
     });
   }
@@ -267,10 +303,13 @@ class GameWin extends React.Component {
   <div className="gameWin">
   {this.isShowMondai() && 
     <div>
-      <div className="rec-state">
-      {this.state.isRec &&
-        <span>認識中</span>}
-      {(!this.state.isRec && this.state.lastScript != "") &&
+      <div id="recState" className={`rec-state ${this.state.recState}`}
+            style={{ marginBottom: 10}}>
+      {this.state.recState == "REC" &&
+        <span>録音中...</span>}
+      {this.state.recState == "NINSHIKI" &&
+        <span>認識中...</span>}
+      {(this.state.recState == "STOP" && this.state.lastScript != "") &&
         <span>認識した言葉：{this.state.lastScript}</span>}
       </div>
       <Mondai ref="mondai" 
@@ -468,21 +507,23 @@ class App extends React.Component {
   /**
    * 描画
    */
-  render() { return (
+  render() { 
+    
+    var dispComponent;
+    if (this.state.sts == STATE.START) {
+      dispComponent = <StartMenu/>;
+    } else {
+      dispComponent = <GameWin ref="gameWin"
+        onBackStart={this.showStartMenu} 
+        sts={this.state.sts} />;
+    }
+
+    return (
     <div>
       <div className="header">
         <h1>タイトル</h1>
       </div>
-      <div>
-        {/*スタート画面*/}
-        {this.state.sts == STATE.START && 
-          <StartMenu/>}
-        {/*ゲーム中のタグ*/}
-        {this.state.sts != STATE.START && 
-          <GameWin ref="gameWin"
-            onBackStart={this.showStartMenu} 
-            sts={this.state.sts} />}
-      </div>
+      <div>{dispComponent}</div>
     </div>
   );}
 }

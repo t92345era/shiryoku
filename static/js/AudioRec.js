@@ -12,9 +12,12 @@ class AudioRec {
     this.handleDataAvailable = this.handleDataAvailable.bind(this);
     this.playerId = "";
 
+
     this.audioContext = null;
+    this.sampleRate = -1;
     this.lowpassFilter = null;
     this.analyser = null;
+    this.oscillator = null;
     this.recorder = null;
     this.wavExported = this.wavExported.bind(this);
     
@@ -38,10 +41,12 @@ class AudioRec {
    */
   init() {
 
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
     //context
     this.audioContext = new AudioContext();
-    var sampleRate = this.audioContext.sampleRate;
-    console.log("sample rate:" + sampleRate);
+    this.sampleRate = this.audioContext.sampleRate;
+    console.log("sample rate:" + this.sampleRate);
  
     //ローパスフィルタ
     this.lowpassFilter = this.audioContext.createBiquadFilter();
@@ -52,6 +57,14 @@ class AudioRec {
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.fftSize = 1024;
     this.analyser.smoothingTimeContant = 0.9;
+
+    this.oscillator = this.audioContext.createOscillator();
+    // for legacy browsers
+    this.oscillator.start = this.oscillator.start || this.oscillator.noteOn;
+    this.oscillator.stop  = this.oscillator.stop  || this.oscillator.noteOff;
+    // OscillatorNode (Input) -> AnalyserNode (Visualization) -> AudioDestinationNode (Output)
+    this.oscillator.connect(this.analyser);
+    this.analyser.connect(this.audioContext.destination);
 
     //レコーダ
     this.recorder = new Recorder(
@@ -73,7 +86,59 @@ class AudioRec {
         input.connect(this.lowpassFilter);
         this.lowpassFilter.connect(this.analyser);
 
+
+        this.anaTest();
       });
+  }
+
+  anaTest() {
+
+    var canvas        = document.querySelector('canvas');
+    var canvasContext = canvas.getContext('2d');
+
+    this.analyser.fftSize = 2048;  // The default value
+    var intervalid = setInterval(() => {
+
+      // canvalをクリア
+      canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Get data for drawing sound wave
+      // 波形データを取得 
+      var times = new Uint8Array(this.analyser.fftSize);
+      this.analyser.getByteTimeDomainData(times);
+
+      canvasContext.beginPath();
+
+      // (1が255, 0 (無音) が128, -1が0)となるよう正規化
+      for (var i = 0, len = times.length; i < len; i++) {
+
+        // x,y座標計算
+        var x = (i / len) * canvas.width;
+        var y = (1 - (times[i] / 255)) * canvas.height;
+
+        if (i === 0) {
+          canvasContext.moveTo(x, y);
+        } else {
+          canvasContext.lineTo(x, y);
+        }
+      }
+
+      canvasContext.stroke();
+
+
+      // Draw text and grid (Y)
+      var textYs = ['1.00', '0.00', '-1.00'];
+      for (var i = 0, i = textYs.length; i < len; i++) {
+         //console.log("i=" + i);
+          var text = textYs[i];
+          var gy   = ((1 - parseFloat(text)) / 2) * canvas.height;
+          // Draw grid (Y)
+          canvasContext.fillRect(0, gy, canvas.width, 1);
+          // Draw text (Y)
+          canvasContext.fillText(text, 3, gy);
+      }
+    }, 500);
+
   }
 
   /**

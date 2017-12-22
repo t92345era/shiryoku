@@ -1,6 +1,9 @@
 h1 {
   font-size: 15px;
+  margin: 0;
 }
+* { margin: 0 }
+* { padding: 0 }
 
 .mondai-table {
   border-spacing: 5px; 
@@ -81,5 +84,13 @@ img.mark.lv10 { width:  3px; }
   height: 3em;
   background: #ccc;
   text-align: center;
-  margin: 0;
+  margin: 0 20px;
+  line-height: 3em;
+  font-size: 20px;
+}
+.rec-state.REC { 
+  background: #e96565;
+}
+.rec-state.NINSHIKI { 
+  background: #a2b1f7;
 }
