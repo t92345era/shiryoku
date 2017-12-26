@@ -76,12 +76,19 @@ class AudioRec {
    */
   drawCanvas() {
 
+    var requestAnimationFrame = window.requestAnimationFrame ||
+　　　　　　　　　　　　　　　　　　　window.mozRequestAnimationFrame ||
+                              　window.webkitRequestAnimationFrame ||
+　　　　　　　　　　　　　　　　　　　window.msRequestAnimationFrame;
+    //window.requestAnimationFrame = requestAnimationFrame;
+
     //アナライザ
     this.analyser = this.audioContext.createAnalyser();
-    this.analyser.smoothingTimeContant = 0.5;
+    this.analyser.smoothingTimeContant = 0.9;
     this.analyser.fftSize = 2048;  // The default value
     this.lowpassFilter.connect(this.analyser);
 
+    //描画用キャンパス
     var canvas        = document.querySelector('canvas');
     var canvasContext = canvas.getContext('2d');
 
@@ -91,7 +98,9 @@ class AudioRec {
 
     console.log("max=" + this.analyser.maxDecibels);
     
-    var intervalid = setInterval(() => {
+    //アニメーションフレーム
+    var loopFrame = () => {
+      requestAnimationFrame(loopFrame);
 
       // canvalをクリア
       canvasContext.clearRect(0, 0, canvas.width, canvas.height);
@@ -128,9 +137,9 @@ class AudioRec {
         // Draw text (Y)
         canvasContext.fillText((i + ' dB'), 0, gy);
       }
-
-
-    }, 500);
+    };
+    loopFrame();
+    
 
   }
 
