@@ -217,6 +217,7 @@ class GameWin extends React.Component {
     var formData = new FormData();
     var fileOfBlob = new File([blob], 'rec.wav');
     formData.append("uploadfile", fileOfBlob);
+    formData.append("samplerate", this.rec.sampleRate);
     
     $.ajax({
         url: '/upload_audio/',

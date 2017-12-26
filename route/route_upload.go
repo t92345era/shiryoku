@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"shiryoku/spk"
+	"strconv"
 )
 
 /**
@@ -28,6 +29,10 @@ func UploadAudio(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//サンプルレートを取得
+	sampleRage, _ := strconv.ParseInt(r.Form["samplerate"][0], 10, 32)
+	fmt.Println("sampleRate=", sampleRage)
+
 	defer file.Close()
 	//	fmt.Fprintf(w, "%v", handler.Header)
 	var honban = os.Getenv("SHIRYOKU_HONBAN")
@@ -46,7 +51,7 @@ func UploadAudio(w http.ResponseWriter, r *http.Request) {
 	defer f.Close()
 	io.Copy(f, file)
 
-	scripts := spk.CallSpeakApi(filePath)
+	scripts := spk.CallSpeakApi(filePath, int32(sampleRage))
 	js, errJ := json.Marshal(scripts)
 	if errJ != nil {
 		log.Fatalf("error: %v", errJ)

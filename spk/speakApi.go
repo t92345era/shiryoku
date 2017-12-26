@@ -14,7 +14,7 @@ import (
 	speechpb "google.golang.org/genproto/googleapis/cloud/speech/v1beta1"
 )
 
-func CallSpeakApi(path string) []string {
+func CallSpeakApi(path string, sampleRate int32) []string {
 
 	fmt.Println("start!!")
 
@@ -41,7 +41,7 @@ func CallSpeakApi(path string) []string {
 	resp, err := client.SyncRecognize(ctx, &speechpb.SyncRecognizeRequest{
 		Config: &speechpb.RecognitionConfig{
 			Encoding:     speechpb.RecognitionConfig_LINEAR16,
-			SampleRate:   48000,
+			SampleRate:   sampleRate,
 			LanguageCode: "ja_JP",
 			SpeechContext: &speechpb.SpeechContext{
 				Phrases: []string{"うえ", "した", "みぎ", "ひだり"},
