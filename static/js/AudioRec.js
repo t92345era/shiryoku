@@ -52,9 +52,14 @@ class AudioRec {
     this.lowpassFilter.type = 0;
     this.lowpassFilter.frequency.value = 20000;
 
+    //ゲイン
+    this.audioContext.createGain = this.audioContext.createGain || this.audioContext.createGainNode;
+    this.gainNode = this.audioContext.createGain();
+    this.gainNode.gain.value = 1;
+
     //レコーダ
     this.recorder = new Recorder(
-      this.lowpassFilter, { 
+      this.gainNode, { 
         workerPath: 'js/recorderjs/recorderWorker.js',
         numChannels: 1
       });
@@ -65,7 +70,10 @@ class AudioRec {
         this.supportAudio = true;
 
         var input = this.audioContext.createMediaStreamSource(stream);
+        this.inputSource = input;
         input.connect(this.lowpassFilter);
+        this.lowpassFilter.connect(this.gainNode);
+        
         //
         this.drawCanvas();
       });
@@ -85,15 +93,22 @@ class AudioRec {
     //アナライザ
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.smoothingTimeContant = 0.9;
-    this.analyser.fftSize = 2048;  // The default value
-    this.lowpassFilter.connect(this.analyser);
+    this.analyser.fftSize = 512;  // The default value
+    this.gainNode.connect(this.analyser);
 
     //描画用キャンパス
     var canvas        = document.querySelector('canvas');
     var canvasContext = canvas.getContext('2d');
-
-    //500Hz毎の間隔
+    var gLeft = 35;
+    var gWidth = canvas.width - gLeft - 10;
+    var gTop = 10;
+    var gYLabelHeight = 20;
+    var gHeight = canvas.height - gYLabelHeight - gTop;
+    
+    //500Hz毎の配列インデックス間隔
     var fsDivN = this.audioContext.sampleRate / this.analyser.fftSize;
+    var n500Hz = Math.floor(500 / fsDivN);
+    this.analyser.minDecibels = -100;
     this.analyser.maxDecibels = -10;
 
     console.log("max=" + this.analyser.maxDecibels);
@@ -115,13 +130,26 @@ class AudioRec {
       canvasContext.beginPath();
 
       for (var i = 0, len = spectrums.length; i < len; i++) {
-        var x = (i / len) * canvas.width;
-        var y = (-1 * ((spectrums[i] - this.analyser.maxDecibels) / range)) * canvas.height;
 
-        if (i === 0) {
-          canvasContext.moveTo(x, y);
-        } else {
-          canvasContext.lineTo(x, y);
+        var x = gLeft + ((i / len) * gWidth);
+        var y = (-1 * ((spectrums[i] - this.analyser.maxDecibels) / range)) * gHeight;
+        y += gTop;
+
+        // (-1 * ((-50 - (-100)) / 70)) * 100
+        if ((i % 500 == 0) && y > gHeight) {
+          //console.log("y=" + y + " height=" + gHeight + " dh=" + spectrums[i] );
+        }
+
+        if (spectrums[i] >= this.analyser.minDecibels) {
+          if (i === 0) {
+            canvasContext.moveTo(x, y);
+          } else {
+            canvasContext.lineTo(x, y);
+          }
+        }
+
+        if ((i % n500Hz) === 0) {
+          canvasContext.fillRect(x, gTop, 1, gHeight);
         }
       }
 
@@ -129,13 +157,15 @@ class AudioRec {
       canvasContext.stroke();
 
       // Draw text and grid (Y)
-      canvasContext.fillStyle = "#999";
+      canvasContext.fillStyle = "#ccc";
+      canvasContext.font = "10px 'Times New Roman'";
       for (var i = this.analyser.minDecibels; i <= this.analyser.maxDecibels; i += 10) {
-        var gy = (-1 * ((i - this.analyser.maxDecibels) / range)) * canvas.height;
+        var gy = (-1 * ((i - this.analyser.maxDecibels) / range)) * gHeight;
+        gy += gTop;
         // Draw grid (Y)
-        canvasContext.fillRect(0, gy, canvas.width, 1);
+        canvasContext.fillRect(gLeft, gy, gWidth, 1);
         // Draw text (Y)
-        canvasContext.fillText((i + ' dB'), 0, gy);
+        canvasContext.fillText((i + ' dB'), 0, gy + 5);
       }
     };
     loopFrame();
