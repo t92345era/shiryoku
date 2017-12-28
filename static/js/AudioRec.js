@@ -76,6 +76,7 @@ class AudioRec {
         
         //
         this.drawCanvas();
+        //this.testDomain();
       });
   }
 
@@ -93,7 +94,7 @@ class AudioRec {
     //アナライザ
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.smoothingTimeContant = 0.9;
-    this.analyser.fftSize = 512;  // The default value
+    this.analyser.fftSize = 1024;  // The default value
     this.gainNode.connect(this.analyser);
 
     //描画用キャンパス
@@ -135,11 +136,6 @@ class AudioRec {
         var y = (-1 * ((spectrums[i] - this.analyser.maxDecibels) / range)) * gHeight;
         y += gTop;
 
-        // (-1 * ((-50 - (-100)) / 70)) * 100
-        if ((i % 500 == 0) && y > gHeight) {
-          //console.log("y=" + y + " height=" + gHeight + " dh=" + spectrums[i] );
-        }
-
         if (spectrums[i] >= this.analyser.minDecibels) {
           if (i === 0) {
             canvasContext.moveTo(x, y);
@@ -154,6 +150,31 @@ class AudioRec {
       }
 
       canvasContext.strokeStyle = "#339";
+      canvasContext.lineWidth = 2;
+      canvasContext.stroke();
+
+      // 時間単位の波形データ取得
+      var times = new Uint8Array(this.analyser.fftSize);
+      this.analyser.getByteTimeDomainData(times);
+      canvasContext.beginPath();
+
+      // (1が255, 0 (無音) が128, -1が0)となるよう正規化
+      for (var i = 0, len = times.length; i < len; i++) {
+
+        // x,y座標計算
+        var x = gLeft + ((i / len) * gWidth);
+        var y = (1 - (times[i] / 255)) * canvas.height;
+        y += gTop;
+
+        if (i === 0) {
+          canvasContext.moveTo(x, y);
+        } else {
+          canvasContext.lineTo(x, y);
+        }
+      }
+
+      canvasContext.strokeStyle = "#933";
+      canvasContext.lineWidth = 1.5;
       canvasContext.stroke();
 
       // Draw text and grid (Y)
@@ -256,6 +277,7 @@ class AudioRec {
     var fsDivN = this.audioContext.sampleRate / this.analyser.fftSize;
     this.analyser.fftSize = 2048;  // The default value
     this.analyser.maxDecibels = -10;
+    
 
     console.log("max=" + this.analyser.maxDecibels);
     
@@ -301,6 +323,58 @@ class AudioRec {
     }, 500);
 
   }
+
+  testDomain() {
+    //var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    this.analyser = this.audioContext.createAnalyser();
+    this.analyser.smoothingTimeContant = 0.9;
+    this.analyser.fftSize = 1024;  // The default value
+    this.gainNode.connect(this.analyser);
+    var analyser = this.analyser;    
+
+    var bufferLength = analyser.fftSize;
+    console.log(bufferLength);
+    var dataArray = new Float32Array(bufferLength);
+
+
+    var canvas        = document.querySelector('canvas');
+    var canvasCtx     = canvas.getContext('2d');
+    
+    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    function draw() {
+      requestAnimationFrame(draw);
+      analyser.getFloatTimeDomainData(dataArray);
+    
+      canvasCtx.fillStyle = 'rgb(200, 200, 200)';
+      canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+      canvasCtx.lineWidth = 2;
+      canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
+      canvasCtx.beginPath();
+    
+      var sliceWidth = canvas.width * 1.0 / bufferLength;
+      var x = 0;
+    
+      for(var i = 0; i < bufferLength; i++) {
+        var v = dataArray[i] * 200.0;
+        var y = canvas.height/2 + v;
+    
+        if(i === 0) {
+          canvasCtx.moveTo(x, y);
+        } else {
+          canvasCtx.lineTo(x, y);
+        }
+        x += sliceWidth;
+      }
+    
+      canvasCtx.lineTo(canvas.width, canvas.height/2);
+      canvasCtx.stroke();
+    };
+    
+    draw();
+  }
+
+
 
   /**
    * 指定時間(ミリ秒指定)録音するメソッド
