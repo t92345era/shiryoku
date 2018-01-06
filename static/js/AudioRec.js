@@ -12,7 +12,6 @@ class AudioRec {
     this.handleDataAvailable = this.handleDataAvailable.bind(this);
     this.playerId = "";
 
-
     this.audioContext = null;
     this.sampleRate = -1;
     this.lowpassFilter = null;
@@ -20,6 +19,7 @@ class AudioRec {
     this.oscillator = null;
     this.recorder = null;
     this.wavExported = this.wavExported.bind(this);
+    this.koeFlg = false;
     
     //初期化処理
     this.init();
@@ -50,7 +50,7 @@ class AudioRec {
     //ローパスフィルタ
     this.lowpassFilter = this.audioContext.createBiquadFilter();
     this.lowpassFilter.type = 0;
-    this.lowpassFilter.frequency.value = 20000;
+    this.lowpassFilter.frequency.value = 8000;
 
     //ゲイン
     this.audioContext.createGain = this.audioContext.createGain || this.audioContext.createGainNode;
@@ -71,8 +71,8 @@ class AudioRec {
 
         var input = this.audioContext.createMediaStreamSource(stream);
         this.inputSource = input;
-        input.connect(this.lowpassFilter);
-        this.lowpassFilter.connect(this.gainNode);
+        input.connect(this.gainNode);
+        this.gainNode.connect(this.lowpassFilter);
         
         //
         this.drawCanvas();
@@ -95,7 +95,7 @@ class AudioRec {
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.smoothingTimeContant = 0.9;
     this.analyser.fftSize = 1024;  // The default value
-    this.gainNode.connect(this.analyser);
+    this.lowpassFilter.connect(this.analyser);
 
     //描画用キャンパス
     var canvas        = document.querySelector('canvas');
@@ -107,12 +107,36 @@ class AudioRec {
     var gHeight = canvas.height - gYLabelHeight - gTop;
     
     //500Hz毎の配列インデックス間隔
-    var fsDivN = this.audioContext.sampleRate / this.analyser.fftSize;
+    // /var fsDivN = this.audioContext.sampleRate / this.analyser.fftSize;
+    var fsDivN = this.lowpassFilter.frequency.value / this.analyser.fftSize;
+    //this.lowpassFilter.frequency.value
     var n500Hz = Math.floor(500 / fsDivN);
+
+    //5msec毎のインデックス間隔
+    var n5msec = Math.floor(5 * Math.pow(10, -3) * this.audioContext.sampleRate);
+    //配列データ１件あたりの秒数 (ex. 0.0000020)
+    var period = 1 / this.audioContext.sampleRate;
+    
     this.analyser.minDecibels = -100;
     this.analyser.maxDecibels = -10;
 
+    // var metrics = canvasContext.measureText("8");
+    // console.log(metrics);
+
     console.log("max=" + this.analyser.maxDecibels);
+
+    const KANSHI_MIN = 150;
+    const KANSHI_MAX = 800;
+    //8000
+    //var minFIndex = this.frequencyToIndex(KANSHI_MIN, this.audioContext.sampleRate, this.analyser.frequencyBinCount);
+    //var maxFIndex = this.frequencyToIndex(KANSHI_MAX, this.audioContext.sampleRate, this.analyser.frequencyBinCount);
+    var minFIndex = this.frequencyToIndex(KANSHI_MIN, 8000, this.analyser.frequencyBinCount);
+    var maxFIndex = this.frequencyToIndex(KANSHI_MAX, 8000, this.analyser.frequencyBinCount);
+    console.log("minFIndex=" + minFIndex);
+    console.log("maxFIndex=" + maxFIndex);
+
+    var prevKoeDate = new Date();
+    var startKoeDate = new Date();
     
     //アニメーションフレーム
     var loopFrame = () => {
@@ -120,6 +144,8 @@ class AudioRec {
 
       // canvalをクリア
       canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+      canvasContext.fillStyle = "#ccc";
+      canvasContext.globalAlpha = 1;
 
       // dbのレンジ
       var range = this.analyser.maxDecibels - this.analyser.minDecibels;
@@ -127,7 +153,6 @@ class AudioRec {
       // デシベル単位の波形データを取得
       var spectrums = new Float32Array(this.analyser.frequencyBinCount);  // Array size is 1024 (half of FFT size)
       this.analyser.getFloatFrequencyData(spectrums);
-
       canvasContext.beginPath();
 
       for (var i = 0, len = spectrums.length; i < len; i++) {
@@ -147,6 +172,23 @@ class AudioRec {
         if ((i % n500Hz) === 0) {
           canvasContext.fillRect(x, gTop, 1, gHeight);
         }
+
+        //認識範囲の配列インデックスか？
+        var now = new Date();
+        if (i >= minFIndex && i <= maxFIndex) {
+          if (spectrums[i] >= -45) {
+            prevKoeDate = now;
+            if (!this.koeFlg) startKoeDate = new Date();
+            this.koeFlg = true;
+          } else if (this.koeFlg == true) {
+            if (now.getTime() - prevKoeDate.getTime() > 1000 ) {
+              this.koeFlg = false;
+              if (prevKoeDate.getTime() - startKoeDate.getTime() > 100) {
+                EventEmitter.instance().emit("onEndSpeech");
+              }
+            }
+          }
+        }
       }
 
       canvasContext.strokeStyle = "#339";
@@ -163,13 +205,18 @@ class AudioRec {
 
         // x,y座標計算
         var x = gLeft + ((i / len) * gWidth);
-        var y = (1 - (times[i] / 255)) * canvas.height;
+        var y = (1 - (times[i] / 255)) * gHeight;
         y += gTop;
 
         if (i === 0) {
           canvasContext.moveTo(x, y);
         } else {
           canvasContext.lineTo(x, y);
+        }
+
+        if (i % n5msec == 0) {
+          var msec = Math.round((i * period) * 1000);
+          canvasContext.fillText(msec, x, 9);
         }
       }
 
@@ -188,11 +235,23 @@ class AudioRec {
         // Draw text (Y)
         canvasContext.fillText((i + ' dB'), 0, gy + 5);
       }
+
+
+      {
+        var x = gLeft + ((minFIndex / this.analyser.frequencyBinCount) * gWidth);  
+        var x2 = gLeft + ((maxFIndex / this.analyser.frequencyBinCount) * gWidth);  
+        canvasContext.globalAlpha = 0.3;
+        canvasContext.fillStyle = "#33f";
+        canvasContext.fillRect(x, gTop, x2 - x, gHeight);
+      }
+
     };
     loopFrame();
     
 
   }
+
+
 
   anaTest() {
 
@@ -400,10 +459,36 @@ class AudioRec {
    * 録音停止
    */
   stopRec() {
-    console.log("AudioRec.stopRec()");
-    //this.mediaRecorder.stop();
-    this.recorder && this.recorder.stop();
-    this.recorder && this.recorder.exportWAV(this.wavExported);
+    
+    if (this.isRecording()) {
+      console.log("AudioRec.stopRec()");
+      this.recorder.stop();
+      this.recorder.exportWAV(this.wavExported);
+    } else {
+      console.log("AudioRec.stopRec() Already Stopped!!");
+    }
+  }
+
+  /**
+   * 録音のキャンセル
+   */
+  cancelRec() {
+
+    if (this.isRecording()) {
+      console.log("AudioRec.cancelRec()");
+      this.recorder.stop();
+      EventEmitter.instance().emit("onCancelRec");
+    } else {
+      console.log("AudioRec.stopRec() Already Stopped!!");
+    }
+  }
+
+  /**
+   * 現在録音中かを取得する
+   * @return 録音中の場合、true
+   */
+  isRecording() {
+    return this.recorder && this.recorder.recording;
   }
 
   /**
@@ -443,6 +528,26 @@ class AudioRec {
     // }
 
     // EventEmitter.instance().emit("onDataAvailable", audioURL);
+  }
+
+  frequencyToIndex (frequency, sampleRate, frequencyBinCount) {
+    var nyquist = sampleRate / 2
+    var index = Math.round(frequency / nyquist * frequencyBinCount)
+    //return clamp(index, 0, frequencyBinCount)
+    return Math.max(Math.min(index, frequencyBinCount), 0);
+  }
+  
+  analyserFrequencyAverage (div, analyser, frequencies, minHz, maxHz) {
+    var sampleRate = analyser.context.sampleRate
+    var binCount = analyser.frequencyBinCount
+    var start = frequencyToIndex(minHz, sampleRate, binCount)
+    var end = frequencyToIndex(maxHz, sampleRate, binCount)
+    var count = end - start
+    var sum = 0
+    for (; start < end; start++) {
+      sum += frequencies[start] / div
+    }
+    return count === 0 ? 0 : (sum / count)
   }
   
 }

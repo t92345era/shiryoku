@@ -122,6 +122,7 @@ class GameWin extends React.Component {
     this.handleShutsuDai = this.handleShutsuDai.bind(this);
     this.handleRecDataAvailable = this.handleRecDataAvailable.bind(this);
     this.talkAns = this.talkAns.bind(this);
+    this.handleEndSpeech = this.handleEndSpeech.bind(this);
     
   }
 
@@ -132,6 +133,7 @@ class GameWin extends React.Component {
     EventEmitter.instance().on("onAns", this.handleAns);
     EventEmitter.instance().on("onShutsuDai", this.handleShutsuDai);
     EventEmitter.instance().on("onDataAvailable", this.handleRecDataAvailable);
+    EventEmitter.instance().on("onEndSpeech", this.handleEndSpeech);
   }
 
   //アンマウント
@@ -139,6 +141,7 @@ class GameWin extends React.Component {
     EventEmitter.instance().off("onAns", this.handleAns);
     EventEmitter.instance().off("onShutsuDai", this.handleShutsuDai);
     EventEmitter.instance().off("onDataAvailable", this.handleRecDataAvailable);
+    EventEmitter.instance().off("onEndSpeech", this.handleEndSpeech);
   }
 
   /**
@@ -146,12 +149,28 @@ class GameWin extends React.Component {
    * @param {string} direction 
    */
   handleShutsuDai(direction) {
+
+    if (this.rec.isRecording()) {
+      this.rec.cancelRec();
+    }
+
     sound_shutsudai();
     this.rec.timerRec(5000);
+    this.rec.koeFlg = false;
     this.setState({
       recState: "REC",
       lastScript: ""
     });
+  }
+
+  /**
+   * 会話終了時の処理
+   */
+  handleEndSpeech() {
+    console.log("会話終了？？？");
+    if (this.rec.isRecording()) {
+      this.rec.stopRec();
+    }
   }
 
   /**
@@ -160,13 +179,16 @@ class GameWin extends React.Component {
    */
   handleAns(result) {
 
+    if (this.rec.isRecording()) {
+      this.rec.cancelRec();
+    }
+
     if (result == "OK") {
       sound_seikai();
     } else {
       sound_huseikai();
     }
  
-
     this.setState((prevState, props) => {
       let cnt = result == "OK" ? prevState.renzokuCnt + 1 : 0;
       let ngCnt = (result == "NG" ? this.state.ngRenCnt + 1 : 0);
@@ -349,6 +371,7 @@ class Mondai extends React.Component {
       result: ""
     }; 
     this.handleNext = this.handleNext.bind(this);
+    this.handleSkip = this.handleSkip.bind(this);
   }
 
   /**
@@ -373,6 +396,13 @@ class Mondai extends React.Component {
       EventEmitter.instance().emit("onAns", this.state.result);
       EventEmitter.instance().emit("onStateChange", STATE.RESULT);
     });
+  }
+
+  /**
+   * スキップボタン押下時の処理
+   */
+  handleSkip() {
+    this.shutsuDai();
   }
 
   /**
@@ -425,8 +455,13 @@ class Mondai extends React.Component {
         <td style={{ height: "300px"}}>
           <div className="mark-wrap">
             {this.props.sts == STATE.SHUDAI_TYU && 
-            <img className={`mark ${this.state.currntDirection} lv${this.props.lvl}`} 
-                 src="/static/img/mark.png"/>}
+            <div>
+              <img className={`mark ${this.state.currntDirection} lv${this.props.lvl}`} 
+                  src="/static/img/mark.png"/>
+              <div>
+                <button className="skip" onClick={this.handleSkip}>スキップ</button>
+              </div>
+            </div>}
             {this.props.sts == STATE.SHUDAI_WAIT && 
             <button onClick={this.shutsuDai.bind(this)}>出題する</button>}
             {(this.props.sts == STATE.RESULT || this.props.sts == STATE.GAME_ENDING) && 
